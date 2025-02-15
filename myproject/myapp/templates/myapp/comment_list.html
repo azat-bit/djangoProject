@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yorumlar</title>
+</head>
+<body>
+    <h1>Yorumlar</h1>
+    <ul>
+        {% for comment in comments %}
+            <li><strong>{{ comment.user.username }}:</strong> {{ comment.content }} - {{ comment.created_at }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

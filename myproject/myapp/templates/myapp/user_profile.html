@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user.username }} Profili</title>
+</head>
+<body>
+    <h1>Kullanıcı Profili</h1>
+    <p><strong>Kullanıcı Adı:</strong> {{ user.username }}</p>
+    <p><strong>Biyografi:</strong> {{ profile.bio }}</p>
+    
+    {% if profile.profile_picture %}
+        <img src="{{ profile.profile_picture.url }}" alt="{{ user.username }} Profil Resmi">
+    {% endif %}
+</body>
+</html>

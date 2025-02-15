@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Etiketler</title>
+</head>
+<body>
+    <h1>Etiket Listesi</h1>
+    <ul>
+        {% for tag in tags %}
+            <li><a href="{% url 'tag_detail' tag.id %}">{{ tag.name }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

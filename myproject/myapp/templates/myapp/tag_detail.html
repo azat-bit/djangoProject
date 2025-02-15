@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ tag.name }}</title>
+</head>
+<body>
+    <h1>Etiket: {{ tag.name }}</h1>
+
+    <h2>Bu etiketle ilgili blog yazıları:</h2>
+    <ul>
+        {% for blog in blogs %}
+            <li><a href="{% url 'blog_detail' blog.id %}">{{ blog.title }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Listesi</title>
+</head>
+<body>
+    <h1>Blog Yazıları</h1>
+
+    {% if request.user.is_authenticated %}
+        <p>Giriş yapan kullanıcı: <strong>{{ request.user.username }}</strong></p>
+        <a href="{% url 'logout' %}">Çıkış Yap</a>
+    {% else %}
+        <p>Merhaba, lütfen <a href="{% url 'login' %}">giriş yap</a>.</p>
+    {% endif %}
+
+    <ul>
+        {% for blog in blogs %}
+            <li>
+                <a href="{% url 'blog_detail' blog.id %}">{{ blog.title }}</a>
+                <br>
+                <small>Yazar: {{ blog.author.username }} | Kategori: {{ blog.category.name }} | {{ blog.created_at }}</small>
+            </li>
+        {% empty %}
+            <li>Henüz blog yazısı yok.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
