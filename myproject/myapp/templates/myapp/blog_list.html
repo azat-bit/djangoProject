@@ -4,27 +4,133 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blog Listesi</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
-<body>
-    <h1>Blog Yazıları</h1>
+<body class="bg-light">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'blog_list' %}">My Blog</a>
+            <div class="collapse navbar-collapse justify-content-end">
+                <ul class="navbar-nav">
+                    {% if request.user.is_authenticated %}
+                        <li class="nav-item">
+                            <span class="nav-link text-white">Hoşgeldin, <strong>{{ request.user.username }}</strong></span>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'logout' %}" class="btn btn-danger btn-sm">Çıkış Yap</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a href="{% url 'login' %}" class="btn btn-primary btn-sm">Giriş Yap</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-    {% if request.user.is_authenticated %}
+    <!-- Ana İçerik -->
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Blog Yazıları</h2>
+            {% if request.user.is_authenticated %}
+                <button id="showBlogForm" class="btn btn-success">+ Yeni Blog Ekle</button>
+            {% endif %}
+        </div>
+        {% if request.user.is_authenticated %}
         <p>Giriş yapan kullanıcı: <strong>{{ request.user.username }}</strong></p>
-        <a href="{% url 'logout' %}">Çıkış Yap</a>
     {% else %}
         <p>Merhaba, lütfen <a href="{% url 'login' %}">giriş yap</a>.</p>
     {% endif %}
+        <!-- Blog Ekleme Formu (Başlangıçta Gizli) -->
+        <div id="blogFormContainer" class="card p-4 shadow-sm mb-4" style="display: none;">
+            <h4>Yeni Blog Yazısı Ekle</h4>
+            <form id="blogForm">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Başlık:</label>
+                    <input type="text" id="title" name="title" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Kategori:</label>
+                    <select id="category" name="category" class="form-control">
+                        {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">İçerik:</label>
+                    <textarea id="content" name="content" rows="3" class="form-control" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Kaydet</button>
+            </form>
+        </div>
 
-    <ul>
-        {% for blog in blogs %}
-            <li>
-                <a href="{% url 'blog_detail' blog.id %}">{{ blog.title }}</a>
-                <br>
-                <small>Yazar: {{ blog.author.username }} | Kategori: {{ blog.category.name }} | {{ blog.created_at }}</small>
-            </li>
-        {% empty %}
-            <li>Henüz blog yazısı yok.</li>
-        {% endfor %}
-    </ul>
+        <!-- Blog Listesi -->
+        <div class="row" id="blogList">
+            {% for blog in blogs %}
+                <div class="col-md-4 blog-item">
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ blog.title }}</h5>
+                            <p class="card-text text-truncate" style="max-height: 60px;">{{ blog.content }}</p>
+                            <p class="text-muted">
+                                <small>Yazar: {{ blog.author.username }} | Kategori: {{ blog.category.name }}</small>
+                            </p>
+                            <a href="{% url 'blog_detail' blog.id %}" class="btn btn-primary btn-sm">Devamını Oku</a>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-center">Henüz blog yazısı eklenmemiş.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JQuery ile Blog Ekleme İşlemi -->
+    <script>
+        $(document).ready(function () {
+            $("#showBlogForm").click(function () {
+                $("#blogFormContainer").toggle(); // Blog ekleme formunu aç/kapat
+            });
+
+            $("#blogForm").submit(function (event) {
+                event.preventDefault();
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'blog_create_ajax' %}",
+                    data: $(this).serialize(),
+                    success: function (data) {
+                        if (data.success) {
+                            let newBlog = `
+                                <div class="col-md-4 blog-item">
+                                    <div class="card mb-4 shadow-sm">
+                                        <div class="card-body">
+                                            <h5 class="card-title">${data.title}</h5>
+                                            <p class="card-text text-truncate" style="max-height: 60px;">${data.content}</p>
+                                            <p class="text-muted">
+                                                <small>Yazar: ${data.author} | Kategori: ${data.category}</small>
+                                            </p>
+                                            <a href="/blog/${data.id}/" class="btn btn-primary btn-sm">Devamını Oku</a>
+                                        </div>
+                                    </div>
+                                </div>`;
+                            $("#blogList").prepend(newBlog);
+                            $("#blogFormContainer").hide();
+                            $("#blogForm")[0].reset();
+                        }
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
